@@ -1,19 +1,58 @@
-import React, { useReducer } from 'react'
+import React, { useEffect, useReducer } from 'react'
 import { todoReducer } from './todoReducer';
 
 import './style.css'
+import { TodoList } from './TodoList';
+import { TodoAdd } from './TodoAdd';
 
-const initialState = [{
-    id: new Date().getTime(),
-    desc: 'Aprender React',
-    done: false
-}];
+
+const init = () => {
+
+    return JSON.parse(localStorage.getItem('todos')) || [];
+
+}
+
+
 
 export const TodoApp = () => {
 
-    const [todos] = useReducer(todoReducer, initialState)
+    const [todos, dispatch] = useReducer(todoReducer, [], init)
 
-    console.log(todos)
+    useEffect(() => {
+
+        localStorage.setItem('todos', JSON.stringify(todos))
+
+    }, [todos])
+
+    const handleDelete = (todoId) => {
+
+        const action = {
+            type: 'delete',
+            payload: todoId
+        }
+
+        dispatch(action)
+
+    }
+
+    const handleToggle = (todoId) => {
+
+        dispatch({
+            type: 'toogle',
+            payload: todoId
+        })
+    }
+
+    const handleAddTodo = (newTodo) => {
+
+        console.log('llego aqui')
+
+        dispatch({
+            type: 'add',
+            payload: newTodo
+        })
+
+    }
 
     return (
         <div>
@@ -23,28 +62,19 @@ export const TodoApp = () => {
             <div className='row'>
 
                 <div className='col-7'>
-                    <ul className='list-group list-group-flush'>
-                        {
-                            todos.map((todo, i) => (
 
-                                <li
-                                    key={todo.id}
-                                    className='list-group-item'
-                                >
-                                    <p className='text-center'> {i + 1} {todo.desc} </p>
-                                    <button
-                                        className='btn btn-danger'
-                                    >
-                                        Borrar
-                                    </button>
-                                </li>
-                            ))
-                        }
-                    </ul>
+                    <TodoList
+                        todos={todos}
+                        handleDelete={handleDelete}
+                        handleToggle={handleToggle}
+                    />
+
                 </div>
 
                 <div className='col-5'>
-                    Agregar
+                    <TodoAdd
+                        handleAddTodo={handleAddTodo}
+                    />
                 </div>
             </div>
 
